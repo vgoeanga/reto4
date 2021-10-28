@@ -5,7 +5,13 @@
 package Reto3.service;
 
 import Reto3.model.Reservaciones;
+import Reto3.reportes.ContadorClientes;
+import Reto3.reportes.StatusReservas;
 import Reto3.repository.crud.RepositorioReservaciones;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,5 +77,32 @@ public class ServiciosReservaciones {
             return true;
         }).orElse(false);
         return aBoolean;
+    }
+    
+    public StatusReservas getReporteStatusReservaciones(){
+        List<Reservaciones>completed= metodosCrud.ReservacionStatus("completed");
+        List<Reservaciones>cancelled= metodosCrud.ReservacionStatus("cancelled");
+        return new StatusReservas(completed.size(), cancelled.size());
+    }
+    
+    public List<Reservaciones> getReportesTiempoReservaciones(String datoA, String datoB){
+        SimpleDateFormat parser=new SimpleDateFormat ("yyyy-MM-dd");
+        Date datoUno = new Date();
+        Date datoDos = new Date();
+        
+        try{
+            datoUno = parser.parse(datoA);
+            datoDos = parser.parse(datoB);
+        }catch(ParseException evt){
+            evt.printStackTrace();
+        }if(datoUno.before(datoDos)){
+            return metodosCrud.ReservacionTiempo(datoUno, datoDos);
+        }else{
+            return new ArrayList<>();
+        }
+    } 
+    
+     public List<ContadorClientes> servicioTopClientes(){
+        return metodosCrud.getTopClientes();
     }
 }
